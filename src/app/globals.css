@@ -1,26 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=Rye&family=Inter:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a0f0a;
+  --bg-surface: #2d1810;
+  --bg-surface-hover: #3d2218;
+  --accent-orange: #c45a2c;
+  --accent-orange-hover: #d4703f;
+  --accent-gold: #d4a843;
+  --accent-gold-dim: #a8862f;
+  --text-primary: #f5e6c8;
+  --text-secondary: #8a7560;
+  --text-muted: #5a4a3a;
+  --border-color: #3d2a1a;
+  --border-light: #4d3a2a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-surface-hover: var(--bg-surface-hover);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-orange-hover: var(--accent-orange-hover);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-gold-dim: var(--accent-gold-dim);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border-color);
+  --color-border-light: var(--border-light);
+  --font-display: "Rye", serif;
+  --font-body: "Inter", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-orange);
+}
+
+/* Card glow effect */
+.card-glow {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.card-glow:hover {
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.4);
+  transform: scale(1.03);
+}
+
+/* Parchment texture overlay */
+.parchment-bg {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(45, 24, 16, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(196, 90, 44, 0.1) 0%, transparent 40%);
 }
