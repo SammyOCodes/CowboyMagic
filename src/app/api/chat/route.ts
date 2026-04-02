@@ -1,10 +1,15 @@
 import { NextRequest } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
-import { SCRYFALL_SYSTEM_PROMPT } from "@/lib/claude/system-prompt";
-import { scryfallTools } from "@/lib/claude/tools";
-import { searchCards, getCardByName, ScryfallApiError } from "@/lib/scryfall/client";
-
-const anthropic = new Anthropic();
+import {
+  chatCompletion,
+  buildMessages,
+  hasToolCalls,
+  ChatMessage,
+} from "@/lib/llm/client";
+import {
+  searchCards,
+  getCardByName,
+  ScryfallApiError,
+} from "@/lib/scryfall/client";
 
 export async function POST(request: NextRequest) {
   const { messages } = await request.json();
@@ -16,52 +21,39 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Convert chat messages to Anthropic format
-  const anthropicMessages: Anthropic.MessageParam[] = messages.map(
-    (msg: { role: string; content: string }) => ({
-      role: msg.role as "user" | "assistant",
-      content: msg.content,
-    })
-  );
-
   try {
-    // Initial Claude call with tools
-    let response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
-      system: SCRYFALL_SYSTEM_PROMPT,
-      tools: scryfallTools,
-      messages: anthropicMessages,
-    });
+    const llmMessages = buildMessages(messages);
+    let response = await chatCompletion(llmMessages);
 
-    // Process tool calls in a loop
-    const allContent: Anthropic.ContentBlock[] = [];
     let cardResults: unknown[] = [];
     let scryfallQuery = "";
+    const conversationMessages: ChatMessage[] = [...llmMessages];
 
-    while (response.stop_reason === "tool_use") {
-      const toolUseBlocks = response.content.filter(
-        (block): block is Anthropic.ToolUseBlock => block.type === "tool_use"
-      );
-      const textBlocks = response.content.filter(
-        (block): block is Anthropic.TextBlock => block.type === "text"
-      );
+    // Tool use loop — keep calling until the model stops requesting tools
+    let iterations = 0;
+    while (hasToolCalls(response.message) && iterations < 5) {
+      iterations++;
 
-      allContent.push(...textBlocks);
+      // Add assistant message with tool calls
+      conversationMessages.push({
+        role: "assistant",
+        content: response.message.content || "",
+        tool_calls: response.message.tool_calls,
+      });
 
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
+      // Execute each tool call
+      for (const toolCall of response.message.tool_calls!) {
+        const args = JSON.parse(toolCall.function.arguments);
 
-      for (const toolUse of toolUseBlocks) {
         try {
           let result: unknown;
 
-          if (toolUse.name === "search_scryfall") {
-            const input = toolUse.input as { query: string; order?: string };
-            scryfallQuery = input.query;
+          if (toolCall.function.name === "search_scryfall") {
+            scryfallQuery = args.query;
             const searchResult = await searchCards(
-              input.query,
+              args.query,
               1,
-              input.order || "edhrec"
+              args.order || "edhrec"
             );
             cardResults = searchResult.data;
             result = {
@@ -77,9 +69,8 @@ export async function POST(request: NextRequest) {
                 cmc: c.cmc,
               })),
             };
-          } else if (toolUse.name === "fuzzy_search") {
-            const input = toolUse.input as { name: string };
-            const card = await getCardByName(input.name);
+          } else if (toolCall.function.name === "fuzzy_search") {
+            const card = await getCardByName(args.name);
             cardResults = [card];
             result = {
               name: card.name,
@@ -94,55 +85,31 @@ export async function POST(request: NextRequest) {
             };
           }
 
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: toolUse.id,
+          conversationMessages.push({
+            role: "tool",
             content: JSON.stringify(result),
+            tool_call_id: toolCall.id,
           });
         } catch (err) {
           const errorMsg =
             err instanceof ScryfallApiError
               ? err.details
               : "Failed to execute search";
-          toolResults.push({
-            type: "tool_result",
-            tool_use_id: toolUse.id,
+          conversationMessages.push({
+            role: "tool",
             content: JSON.stringify({ error: errorMsg }),
-            is_error: true,
+            tool_call_id: toolCall.id,
           });
         }
       }
 
-      // Continue conversation with tool results
-      response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1024,
-        system: SCRYFALL_SYSTEM_PROMPT,
-        tools: scryfallTools,
-        messages: [
-          ...anthropicMessages,
-          { role: "assistant", content: response.content },
-          { role: "user", content: toolResults },
-        ],
-      });
+      // Get next response from the model
+      response = await chatCompletion(conversationMessages);
     }
-
-    // Extract final text
-    const finalText = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === "text")
-      .map((block) => block.text)
-      .join("\n");
-
-    const prefixText = allContent
-      .filter((block): block is Anthropic.TextBlock => block.type === "text")
-      .map((block) => block.text)
-      .join("\n");
-
-    const fullText = [prefixText, finalText].filter(Boolean).join("\n");
 
     return new Response(
       JSON.stringify({
-        content: fullText,
+        content: response.message.content || "",
         cards: cardResults,
         scryfallQuery,
       }),
@@ -152,7 +119,8 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     console.error("Chat API error:", err);
-    const message = err instanceof Error ? err.message : "Internal server error";
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
