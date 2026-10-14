@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import { CARD_SEARCH_ENABLED } from "@/lib/features";
 
 export const metadata: Metadata = {
   title: "CowboyMagic - MTG Chase Card & Reserved List Price Tracker",
   description:
-    "Track prices and price history for chase Magic cards and the Reserved List, and search cards with AI-powered Scryfall queries",
+    "Track prices and price history for chase Magic cards and the Reserved List" +
+    (CARD_SEARCH_ENABLED ? ", and search cards with AI-powered Scryfall queries" : ""),
 };
 
 export default function RootLayout({

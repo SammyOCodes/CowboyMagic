@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import clsx from "clsx";
+import { CARD_SEARCH_ENABLED } from "@/lib/features";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/chase", label: "Chase Cards" },
   { href: "/reserved", label: "Reserved List" },
-  { href: "/search", label: "Card Search" },
+  ...(CARD_SEARCH_ENABLED ? [{ href: "/search", label: "Card Search" }] : []),
 ];
 
 export default function Header() {

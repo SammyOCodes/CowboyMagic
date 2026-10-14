@@ -1,5 +1,26 @@
 # CowboyMagic
 
+Price history for chase Magic cards and the Reserved List, built on Next.js and a local
+SQLite database.
+
+## Quick start
+
+Requires **Node 22 or newer** (`nvm use` picks it up from `.nvmrc`).
+
+```bash
+npm install
+npm run sync            # ~2 min: card universe, images, today's prices (Scryfall)
+npm run sync:history    # ~5 min, ~270 MB one-time download: ~90 days of history (MTGJSON)
+npm run dev             # http://localhost:3000
+```
+
+Everything is stored in `data/chase.db`. If someone already has a populated copy, drop it
+in `data/` and skip the first two steps; run `npm run sync` afterwards to refresh.
+
+**Card Search** (an Ollama-backed chatbot) is hidden by default. To enable it, run an
+[Ollama](https://ollama.com) server with the model in `.env.example`, copy that file to
+`.env.local`, and set `NEXT_PUBLIC_ENABLE_CARD_SEARCH=true`. The trackers don't need it.
+
 ## Price trackers
 
 Two trackers share one database, one set of components and one sync:

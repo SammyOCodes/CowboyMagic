@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { CARD_SEARCH_ENABLED } from "@/lib/features";
 import {
   chatCompletion,
   buildMessages,
@@ -12,6 +13,13 @@ import {
 } from "@/lib/scryfall/client";
 
 export async function POST(request: NextRequest) {
+  if (!CARD_SEARCH_ENABLED) {
+    return new Response(JSON.stringify({ error: "Card Search is disabled" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const { messages } = await request.json();
 
   if (!messages || !Array.isArray(messages)) {

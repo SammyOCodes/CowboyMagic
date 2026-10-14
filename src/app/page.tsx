@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Sparkles, MessageCircle, TrendingUp, Lock } from "lucide-react";
+import { CARD_SEARCH_ENABLED } from "@/lib/features";
 
 export default function Home() {
   return (
@@ -11,8 +12,10 @@ export default function Home() {
           CowboyMagic
         </h1>
         <p className="text-text-secondary text-lg max-w-md mx-auto">
-          Track chase card and Reserved List prices, and find the perfect cards
-          with AI-powered search.
+          Track chase card and Reserved List prices
+          {CARD_SEARCH_ENABLED
+            ? ", and find the perfect cards with AI-powered search."
+            : " with full price history."}
         </p>
       </div>
 
@@ -48,20 +51,22 @@ export default function Home() {
           </p>
         </Link>
 
-        <Link
-          href="/search"
-          className="md:col-span-2 bg-bg-secondary border border-border rounded-xl p-6 hover:border-accent-gold/40 transition-all group"
-        >
-          <MessageCircle className="w-10 h-10 text-accent-orange mb-3 group-hover:text-accent-gold transition-colors" />
-          <h2 className="font-display text-xl text-accent-gold mb-2">
-            Card Search
-          </h2>
-          <p className="text-text-secondary text-sm">
-            Describe what you&apos;re looking for in plain English. Our AI
-            converts your request into Scryfall queries and shows you matching
-            cards with images.
-          </p>
-        </Link>
+        {CARD_SEARCH_ENABLED && (
+          <Link
+            href="/search"
+            className="md:col-span-2 bg-bg-secondary border border-border rounded-xl p-6 hover:border-accent-gold/40 transition-all group"
+          >
+            <MessageCircle className="w-10 h-10 text-accent-orange mb-3 group-hover:text-accent-gold transition-colors" />
+            <h2 className="font-display text-xl text-accent-gold mb-2">
+              Card Search
+            </h2>
+            <p className="text-text-secondary text-sm">
+              Describe what you&apos;re looking for in plain English. Our AI
+              converts your request into Scryfall queries and shows you
+              matching cards with images.
+            </p>
+          </Link>
+        )}
       </div>
     </div>
   );
