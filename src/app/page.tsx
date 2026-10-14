@@ -1,18 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { Sparkles, MessageCircle, Library } from "lucide-react";
-import { useEffect, useState } from "react";
-import { getDecks } from "@/stores/deck-store";
-import { Deck } from "@/types";
+import { Sparkles, MessageCircle, TrendingUp, Lock } from "lucide-react";
 
 export default function Home() {
-  const [decks, setDecks] = useState<Deck[]>([]);
-
-  useEffect(() => {
-    setDecks(getDecks());
-  }, []);
-
   return (
     <div className="max-w-4xl mx-auto parchment-bg">
       {/* Hero */}
@@ -22,16 +11,46 @@ export default function Home() {
           CowboyMagic
         </h1>
         <p className="text-text-secondary text-lg max-w-md mx-auto">
-          Track your Commander decks and find the perfect cards with
-          AI-powered search.
+          Track chase card and Reserved List prices, and find the perfect cards
+          with AI-powered search.
         </p>
       </div>
 
       {/* Feature cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <Link
-          href="/search"
+          href="/chase"
           className="bg-bg-secondary border border-border rounded-xl p-6 hover:border-accent-gold/40 transition-all group"
+        >
+          <TrendingUp className="w-10 h-10 text-accent-orange mb-3 group-hover:text-accent-gold transition-colors" />
+          <h2 className="font-display text-xl text-accent-gold mb-2">
+            Chase Card Prices
+          </h2>
+          <p className="text-text-secondary text-sm">
+            Track confetti foils, raised foils, serialized cards and every other
+            premium treatment since 2016. Filter by set, treatment, price and
+            momentum, and follow price history for single cards or whole sets.
+          </p>
+        </Link>
+
+        <Link
+          href="/reserved"
+          className="bg-bg-secondary border border-border rounded-xl p-6 hover:border-accent-gold/40 transition-all group"
+        >
+          <Lock className="w-10 h-10 text-accent-orange mb-3 group-hover:text-accent-gold transition-colors" />
+          <h2 className="font-display text-xl text-accent-gold mb-2">
+            Reserved List
+          </h2>
+          <p className="text-text-secondary text-sm">
+            Every printing of every card Wizards has promised never to reprint.
+            Browse by set, type and price, and switch between Cardmarket,
+            TCGplayer and Card Kingdom to follow vintage staples.
+          </p>
+        </Link>
+
+        <Link
+          href="/search"
+          className="md:col-span-2 bg-bg-secondary border border-border rounded-xl p-6 hover:border-accent-gold/40 transition-all group"
         >
           <MessageCircle className="w-10 h-10 text-accent-orange mb-3 group-hover:text-accent-gold transition-colors" />
           <h2 className="font-display text-xl text-accent-gold mb-2">
@@ -43,52 +62,7 @@ export default function Home() {
             cards with images.
           </p>
         </Link>
-
-        <Link
-          href="/decks"
-          className="bg-bg-secondary border border-border rounded-xl p-6 hover:border-accent-gold/40 transition-all group"
-        >
-          <Library className="w-10 h-10 text-accent-orange mb-3 group-hover:text-accent-gold transition-colors" />
-          <h2 className="font-display text-xl text-accent-gold mb-2">
-            Deck Tracker
-          </h2>
-          <p className="text-text-secondary text-sm">
-            Import your Commander decks from MoxField or paste a deck list.
-            View your cards with stats, mana curves, and color breakdowns.
-          </p>
-        </Link>
       </div>
-
-      {/* Quick stats */}
-      {decks.length > 0 && (
-        <div className="bg-bg-secondary border border-border rounded-xl p-6">
-          <h3 className="font-display text-lg text-accent-gold mb-4">
-            Your Collection
-          </h3>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-accent-gold">
-                {decks.length}
-              </div>
-              <div className="text-text-muted text-xs uppercase">Decks</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-accent-gold">
-                {decks.reduce((s, d) => s + d.cards.length, 0)}
-              </div>
-              <div className="text-text-muted text-xs uppercase">
-                Unique Cards
-              </div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-accent-gold">
-                {[...new Set(decks.flatMap((d) => d.colors))].length}
-              </div>
-              <div className="text-text-muted text-xs uppercase">Colors</div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

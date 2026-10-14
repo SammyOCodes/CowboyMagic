@@ -22,6 +22,22 @@ export interface ScryfallCard {
   scryfall_uri: string;
   rulings_uri: string;
   layout: string;
+  // Printing metadata used by the chase-card tracker
+  oracle_id?: string;
+  released_at?: string;
+  collector_number?: string;
+  set_type?: string;
+  border_color?: string;
+  frame?: string;
+  frame_effects?: string[];
+  promo_types?: string[];
+  finishes?: string[];
+  full_art?: boolean;
+  reserved?: boolean;
+  digital?: boolean;
+  tcgplayer_id?: number;
+  tcgplayer_etched_id?: number;
+  cardmarket_id?: number;
 }
 
 export interface ScryfallCardFace {
@@ -56,26 +72,6 @@ export interface ScryfallError {
   code: string;
   status: number;
   details: string;
-}
-
-// Deck types
-export interface DeckCard {
-  quantity: number;
-  card: ScryfallCard;
-  board: "commander" | "mainboard" | "sideboard" | "maybeboard" | "companion";
-}
-
-export interface Deck {
-  id: string;
-  name: string;
-  description?: string;
-  format: string;
-  colors: string[];
-  cards: DeckCard[];
-  createdAt: string;
-  updatedAt: string;
-  source: "moxfield" | "text-import";
-  sourceUrl?: string;
 }
 
 // Chat types

@@ -1,3 +1,68 @@
+# CowboyMagic
+
+## Price trackers
+
+Two trackers share one database, one set of components and one sync:
+
+| Tracker | Route | What it covers | Default market |
+| --- | --- | --- | --- |
+| Chase Cards | `/chase` | Premium treatments (confetti/raised/surge foils, serialized, ...) and high-value printings from 2016 on | TCGplayer ($) |
+| Reserved List | `/reserved` | Every paper printing of every Reserved List card | Cardmarket (€) |
+
+Each has the same three views:
+
+- **Explorer**: filter by name, set, card type, rarity, color, finish, price range and
+  price movement; sort by price or 7/30-day change; grid or table view. Filters live in
+  the URL, so any view is shareable/bookmarkable. (Chase Cards also filters by treatment.)
+- **Card page** (`/<tracker>/card/<id>`): price history, 90-day low/high, Card Kingdom
+  retail/buylist reference, and every other tracked printing of the card.
+- **Sets** (`/<tracker>/sets`): sets as baskets (chase: set × treatment, e.g. "Wilds of
+  Eldraine: Enchanting Tales · Confetti Foil"; Reserved List: by set) with set value, top
+  card, a per-set price index, and one combined index for the whole tracker.
+
+### Markets
+
+Every view is single-currency; switch markets with the tabs at the top:
+
+- **TCGplayer ($)**: USD market price per finish.
+- **Cardmarket (€)**: EUR. The Reserved List defaults to this because TCGplayer has no
+  USD price for roughly a quarter of Reserved List printings, mostly the Alpha/Beta top end.
+- **Card Kingdom ($)**: retail (and buylist as a reference column).
+
+### Data
+
+Data is stored locally in `data/chase.db` (SQLite, git-ignored).
+
+```bash
+npm run sync                  # Scryfall: card universe, images, today's prices (~2 min)
+npm run sync:history          # MTGJSON: ~90-day price backfill (~150 MB download, streamed)
+npm run sync:history -- --today   # MTGJSON: just today's prices (small)
+npm run sync:history -- --plan    # show download sizes without fetching anything
+```
+
+Run `npm run sync` daily to keep growing your own history past MTGJSON's 90-day window.
+Scryfall supplies TCGplayer and Cardmarket prices for the daily snapshot; MTGJSON supplies
+the 90-day history for all three markets, including Card Kingdom retail/buylist.
+
+The sync respects Scryfall's documented limits (search endpoints are 2 requests/second),
+waits out any HTTP 429, and writes nothing if a query fails, so a partial run can't
+corrupt your history.
+
+### What gets tracked
+
+Defined in [`src/lib/chase/config.ts`](src/lib/chase/config.ts):
+
+1. Every paper printing with a premium promo treatment (small treatments in full; bulky
+   ones like surge/ripple/halo foil only at or above a `minUsd` floor).
+2. A price sweep: any paper printing from 2016+ at or above `$15` that is not on the
+   Reserved List.
+3. The Reserved List: every paper printing of every card on it, at any price.
+
+Edit that file and re-run `npm run sync` to change the tracked universe. Cards that
+drop out of the universe keep being refreshed, so their price history doesn't stop.
+
+## Next.js
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

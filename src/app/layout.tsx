@@ -4,9 +4,9 @@ import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 
 export const metadata: Metadata = {
-  title: "CowboyMagic - MTG Commander Deck Tracker",
+  title: "CowboyMagic - MTG Chase Card & Reserved List Price Tracker",
   description:
-    "Track your Commander decks and search Magic cards with AI-powered Scryfall queries",
+    "Track prices and price history for chase Magic cards and the Reserved List, and search cards with AI-powered Scryfall queries",
 };
 
 export default function RootLayout({

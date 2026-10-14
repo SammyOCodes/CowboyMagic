@@ -17,4 +17,9 @@ class RateLimiter {
   }
 }
 
-export const scryfallLimiter = new RateLimiter(100);
+// Scryfall's documented hard limits (https://scryfall.com/docs/api/rate-limits):
+//   /cards/search, /cards/named, /cards/random, /cards/collection: 2 requests/second
+//   everything else: 10 requests/second
+// Intervals carry a little headroom. Exceeding them yields HTTP 429 and, if ignored, a ban.
+export const scryfallLimiter = new RateLimiter(110);
+export const scryfallSearchLimiter = new RateLimiter(550);

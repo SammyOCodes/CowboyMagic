@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Library, Home, MessageCircle } from "lucide-react";
+import { Home, Lock, MessageCircle, TrendingUp } from "lucide-react";
 import clsx from "clsx";
 
 const sidebarLinks = [
   { href: "/", label: "Dashboard", icon: Home },
+  { href: "/chase", label: "Chase Cards", icon: TrendingUp },
+  { href: "/reserved", label: "Reserved List", icon: Lock },
   { href: "/search", label: "Card Search", icon: MessageCircle },
-  { href: "/decks", label: "My Decks", icon: Library },
 ];
 
 export default function Sidebar() {

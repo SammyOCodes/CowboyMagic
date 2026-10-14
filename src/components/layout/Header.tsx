@@ -7,8 +7,9 @@ import clsx from "clsx";
 
 const navLinks = [
   { href: "/", label: "Home" },
+  { href: "/chase", label: "Chase Cards" },
+  { href: "/reserved", label: "Reserved List" },
   { href: "/search", label: "Card Search" },
-  { href: "/decks", label: "My Decks" },
 ];
 
 export default function Header() {
@@ -28,8 +29,8 @@ export default function Header() {
             key={link.href}
             href={link.href}
             className={clsx(
-              "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-              pathname === link.href
+              "px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors",
+              (link.href === "/" ? pathname === "/" : pathname.startsWith(link.href))
                 ? "bg-bg-surface text-accent-gold"
                 : "text-text-secondary hover:text-text-primary hover:bg-bg-surface/50"
             )}
